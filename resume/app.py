@@ -17,6 +17,7 @@ def fetchCount(event, context):
         ReturnValues="UPDATED_NEW"
     )
 
+    #Formatting response
     responseBody = json.dumps({"visitorCount": int(response["Attributes"]["visitorCount"])})
 
     apiResponse = {
