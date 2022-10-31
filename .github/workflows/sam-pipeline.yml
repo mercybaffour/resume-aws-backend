@@ -18,7 +18,7 @@ jobs:
       - name: install boto3
         run: pip install boto3
       - name: Unit Testing
-        run: cd tests && cd integration & python test_api_gateway.py && cd .. && cd ..
+        run: cd tests && cd integration && python test_api_gateway.py && cd .. && cd ..
 
   deploy-infra:
       runs-on: ubuntu-latest
