@@ -17,6 +17,10 @@ jobs:
           python-version: 3.9
       - name: install boto3
         run: pip install boto3
+      - name: install pytest
+        run: pip install pytest
+      - name: install requests
+        run: pip install requests
       - name: Unit Testing
         run: cd tests && cd integration && python test_api_gateway.py && cd .. && cd ..
 
