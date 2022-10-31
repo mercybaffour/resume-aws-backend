@@ -1,21 +1,44 @@
-on:
-  push:
-    branches:
-      - main
+name: main
+on: push
+env:
+  PYTHON_VERSION: 3.9
+  AWS_DEFAULT_REGION: 'us-east-1'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 jobs:
-  build-deploy:
+  test-app:
     runs-on: ubuntu-latest
-    steps:
+    timeout-minutes: 3
+    steps: 
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: aws-actions/setup-sam@v1
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: actions/setup-python@v2.2.2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      # sam build 
-      - run: sam build 
-      
-# sam deploy
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-app --s3-bucket aws-sam-cli-managed-default-samclisourcebucket-1ezgdy9b1alop --capabilities CAPABILITY_IAM --region us-east-1 
+          python-version: 3.9
+      - name: install boto3
+        run: pip install boto3
+      - name: install pytest
+        run: pip install pytest
+      - name: install requests
+        run: pip install requests
+      - name: Unit Testing
+        run: cd tests && cd integration && python test_api_gateway.py && cd .. && cd ..
+
+  deploy-infra:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v2
+          with:
+            python-version: '3.9'
+            architecture: 'x64'
+        - uses: aws-actions/setup-sam@v1
+        - uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+        - run: sam build
+        - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+
+    
