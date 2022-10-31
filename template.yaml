@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  resume-app
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  FetchCount:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: resume/
+      Handler: app.fetchCount
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        FetchCount:
+          Type: Api 
+          Properties:
+            Path: /count
+            Method: get
+            RestApiId: !Ref MyAPI
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: 
+              !Ref VisitTable
+
+  MyAPI:
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        Cors:
+          AllowMethods: "'GET,POST,OPTIONS'"
+          AllowHeaders: "'content-type'"
+          AllowOrigin: "'*'"
+          AllowCredentials: false
+
+  VisitTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: visits
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+
+
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for function"
+    Value: !Sub "https://${MyAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
+  FetchCount:
+    Description: "Fetch Count Lambda Function ARN"
+    Value: !GetAtt FetchCount.Arn
+  FetchCountIamRole:
+    Description: "Implicit IAM Role created for Fetch Count function"
+    Value: !GetAtt FetchCountRole.Arn
