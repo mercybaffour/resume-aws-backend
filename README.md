@@ -11,3 +11,4 @@ I created a simple serverless application using AWS SAM. This application is a L
 
 When my code (either frontend or backend) is pushed to GitHub, a GitHub Actions workflow will trigger a GitHub Actions CI/CD pipeline. This builds & deploys my code directly from GitHub to my AWS account.
 
+![diagram](https://github.com/mercybaffour/resume-aws-backend/blob/main/aws-architecture.png?raw=true)
